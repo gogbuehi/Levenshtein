@@ -1,6 +1,5 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * A simple program to play with Levenshtein words
  */
 package levenshtein;
 
@@ -15,9 +14,9 @@ public class Levenshtein {
      */
     public static void main(String[] args) {
         //TODO: Get word list
-        System.out.println(levenshtienFriend("lamps","camp"));
+        System.out.println(levenshteinFriend("lamps","camp"));
     }
-    public static boolean levenshtienFriend(String primary, String potentialFriend) {
+    public static boolean levenshteinFriend(String primary, String potentialFriend) {
         int m = primary.length();
         int n = potentialFriend.length();
         
