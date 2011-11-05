@@ -1,1 +1,9 @@
 This is a simple program that plays around with Levenshtein words.
+=Levenshtein Friends
+==Initial Thoughts
+  When looking for related words, I decided it would be cheaper to check against my Levenshtein count, rather than doing String comparisons.
+  Also, since I have a definition for what a "friend" is, I have chosen an alternate method for processing Levenshtein distance.
+  I am using a bit mask to keep track of all the words that are established as friends. UPDATE: Seems I no longer need this, since my comparison method already accounts for degrees of separation.
+==Things I'd like to add
+===Performance Analysis
+  I would like to work on optimizing my method of Levenshtein comparison.
