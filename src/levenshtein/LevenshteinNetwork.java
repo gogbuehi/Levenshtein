@@ -1,5 +1,6 @@
 /*
- * A simple program to play with Levenshtein words
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
  */
 package levenshtein;
 
@@ -18,22 +19,17 @@ import java.util.logging.Logger;
  *
  * @author goodwin
  */
-public class Levenshtein {
-
-    public static final String FILE_SHORTLIST = "/home/goodwin/NetBeansProjects/Levenshtein/src/levenshtein/shortlist.dat";
-    public static final String FILE_FULLLIST = "/home/goodwin/NetBeansProjects/Levenshtein/src/levenshtein/causes.dat";
-    public static final int DEGREES_OF_SEPARATION = 1;
-    public static final String CENTER_OF_ATTENTION = "causes";
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        //TODO: Get word list
-        getWordList(CENTER_OF_ATTENTION);
-        //System.out.println(levenshteinFriend("lamps", "camp"));
+public class LevenshteinNetwork {
+    private BigBitMask mBigBitMask;
+    private int mDegreesOfSeparation;
+    private String mWordListFilename;
+    
+    public LevenshteinNetwork(String filename, int degreesOfSeparation) {
+        mBigBitMask = new BigBitMask(fileLineCount(filename));
+        mWordListFilename = filename;
+        mDegreesOfSeparation = degreesOfSeparation;
     }
-
+    
     public static int fileLineCount(String filename) {
         InputStream is;
         try {
@@ -56,16 +52,13 @@ public class Levenshtein {
         }
     }
 
-    public static int getWordList(String currentWord) {
+    public int getWordList(String currentWord) {
         int count = 0;
-
-        String filename = FILE_FULLLIST;
-        int lineCount = fileLineCount(filename);
-        BigBitMask bigBitMask = new BigBitMask(lineCount);
+        
         byte currentByte;
         int currentLine = 0;
         try {
-            FileInputStream wordFileStream = new FileInputStream(filename);
+            FileInputStream wordFileStream = new FileInputStream(mWordListFilename);
 
             DataInputStream dis = new DataInputStream(wordFileStream);
             BufferedReader br = new BufferedReader(new InputStreamReader(dis));
@@ -91,12 +84,18 @@ public class Levenshtein {
         System.out.println("Friend count: " + count);
         return count;
     }
-
-    public static boolean levenshteinFriend(String primary, String potentialFriend) {
+    /**
+     * This checks for words that are only a distance of 1 Levenshtein from
+     * the primary word.
+     * @param primary
+     * @param potentialFriend
+     * @return 
+     */
+    public boolean levenshteinFriend(String primary, String potentialFriend) {
         int m = primary.length();
         int n = potentialFriend.length();
 
-        if (Math.abs(m - n) > DEGREES_OF_SEPARATION) {
+        if (Math.abs(m - n) > mDegreesOfSeparation) {
             return false;
         }
         int levenshteinCount = 0;
@@ -104,7 +103,7 @@ public class Levenshtein {
             //Substitution
             for (int i = 0; i < primary.length(); i++) {
                 if (primary.charAt(i) != potentialFriend.charAt(i)) {
-                    if (++levenshteinCount > DEGREES_OF_SEPARATION) {
+                    if (++levenshteinCount > mDegreesOfSeparation) {
                         return false;
                     }
                 }
@@ -116,30 +115,91 @@ public class Levenshtein {
             int offset = 0;
             for (int i = 0; i < primary.length(); i++) {
                 if (primary.charAt(offset) != potentialFriend.charAt(i)) {
-                    if (++levenshteinCount > DEGREES_OF_SEPARATION) {
+                    if (++levenshteinCount > mDegreesOfSeparation) {
                         return false;
                     }
                 } else {
                     offset++;
                 }
             }
-            return (n - m) == DEGREES_OF_SEPARATION;
+            return (n - m) == mDegreesOfSeparation;
         }
         if (m > n) {
             //Deletion
             int offset = 0;
             for (int i = 0; i < potentialFriend.length(); i++) {
                 if (primary.charAt(i) != potentialFriend.charAt(offset)) {
-                    if (++levenshteinCount > DEGREES_OF_SEPARATION) {
+                    if (++levenshteinCount > mDegreesOfSeparation) {
                         return false;
                     }
                 } else {
                     offset++;
                 }
             }
-            return (m - n) == DEGREES_OF_SEPARATION;
+            return (m - n) == mDegreesOfSeparation;
         }
         return true;
+    }
+    
+    public static boolean constrainedLevenshtein(String primary, String potential, int maxLevenshteinDistance) {
+        int m  = primary.length();
+        int n = potential.length();
+        
+        if (m == n) {
+            switch(maxLevenshteinDistance) {
+                case 1:
+                    //Levenshtein Friend
+                    break;
+                case 2:
+                    //2 Substitutions;
+                    //1 Insertion + 1 Deletion
+                    break;
+                case 3:
+                    //3 Substitutions
+                    //1 Insertion + 1 Deletion + 1 Substitution
+                    break;
+                default:
+                    //Not handled
+            }
+        } else if (m < n) {
+            switch(maxLevenshteinDistance) {
+                case 1:
+                    //Levenshtein Friend
+                    break;
+                case 2:
+                    //2 Insertions
+                    //1 Insertion + 1 Substitution
+                    break;
+                case 3:
+                    //3 Insertions
+                    //2 Insertions + 1 Substitution
+                    //2 Insertions + 1 Deletions
+                    //1 Insertion + 2 Substitutions
+                    break;
+                default:
+                    //Not Handled
+            }
+        } else if (m > n) {
+            switch(maxLevenshteinDistance) {
+                case 1:
+                    //Levenshtein Friend
+                    break;
+                case 2:
+                    //2 Deletions
+                    //1 Deletion + 1 Substitution
+                    break;
+                case 3:
+                    //3 Deletions
+                    //2 Deletions + 1 Substitution
+                    //2 Deletions + 1 Insertion
+                    //1 Deletion + 2 Substitutions
+                    break;
+                default:
+                    //Not handled
+            }
+        }
+        
+        return false;
     }
 
     public static int levenshteinDistance(String s, String t) {
